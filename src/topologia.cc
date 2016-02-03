@@ -57,11 +57,7 @@ NS_LOG_COMPONENT_DEFINE ("Topologia");
 // Controla la entrada del tipo de balanceo
 oflb_type ParseType(char *lb_type_str)
 {
-  if (strcmp(lb_type_str,"random") == 0) 
-	{
-   	  return OFLB_RANDOM;
-	}
-  else if (strcmp(lb_type_str,"round-robin") == 0) 
+  if (strcmp(lb_type_str,"round-robin") == 0) 
   {
   	return OFLB_ROUND_ROBIN;
   }
@@ -71,7 +67,7 @@ oflb_type ParseType(char *lb_type_str)
   }
   else 
   {
-  	return OFLB_ERROR;
+  	return OFLB_RANDOM;
   }
 }
 
@@ -302,9 +298,9 @@ int main (int argc, char *argv[])
 		server_number = atoi(server_number_str);  
 	}
 	if(strcmp(lb_type_str,"") != 0) {
-    lb_type = ParseType(lb_type_str);
+    	lb_type = ParseType(lb_type_str);
 	}
-	
+
 	// Con dataRate y delay se establecen cero al inicio.
 	// Si tras leer los valores de cmd siguen siendo cero, se inicializan a unos
 	// valores por defecto.
@@ -314,6 +310,33 @@ int main (int argc, char *argv[])
 	if(delay.GetMicroSeconds() == 0) {
     delay = Time("6.56us");
 	}
+
+
+	// Parámetros elegidos:
+	NS_LOG_INFO ("Numero clientes : " << client_number);
+	NS_LOG_INFO ("Numero servidores : " << server_number);
+	switch (lb_type)
+ 	{
+    	case OFLB_RANDOM:
+    	{
+      		NS_LOG_INFO("Algoritmo: RANDOM");
+      		break;
+    	}
+    	case OFLB_ROUND_ROBIN:
+    	{
+      		NS_LOG_INFO("Algoritmo: ROUND_ROBIN");
+      		break;
+    	}
+    	case IP_RANDOM:
+    	{
+      		NS_LOG_INFO("Algoritmo: IP_RANDOM");
+      		break;
+    	}
+    	default: 
+    	{
+           break;
+    	}
+    }
 	
   // Gráficas
   Gnuplot plot1;
@@ -335,8 +358,6 @@ int main (int argc, char *argv[])
   int clients = client_number; 			// Número inicial de servidores y clientes desde el que se empieza a sumar
 
   int relation = 0; 		// Relación clientes/servidores		
-
-    NS_LOG_INFO (".-.-.-.-.-.-.-.-.-CAAAAAMBIIIOOOOO.-.-.-.-.-.-.");
 
     for(int j=0; j<iteraciones; j++) 
     {    
