@@ -320,11 +320,11 @@ int main (int argc, char *argv[])
   plot1.SetTitle ("");
   plot1.SetLegend("Número de clientes/servidor","Paquetes recibidos");
   Gnuplot2dDataset datos1("paquetes_recibidos");
-	datos1.SetStyle (Gnuplot2dDataset::LINES_POINTS);
+  datos1.SetStyle (Gnuplot2dDataset::LINES_POINTS);
     
-  //Gnuplot plot2;
-  //plot2.SetTitle ("Grafica2");
-  //plot2.SetLegend("Número de clientes/servidor","Tiempo entre paquetes (ms)");
+  Gnuplot plot2;
+  plot2.SetTitle ("Grafica2");
+  plot2.SetLegend("Número de clientes/servidor","Tiempo entre paquetes (ms)");
   Gnuplot2dDataset datos2("tiempo_entre_paquetes");
   datos2.SetStyle (Gnuplot2dDataset::LINES_POINTS);
     
@@ -397,7 +397,7 @@ int main (int argc, char *argv[])
        
     // Asigna valores a las gráficas
     plot1.AddDataset(datos1);
-    plot1.AddDataset(datos2);
+    plot2.AddDataset(datos2);
      
     std::ofstream fichero1 ("proyectopsr-gf1.plt");
     plot1.GenerateOutput (fichero1);
