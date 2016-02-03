@@ -4,6 +4,10 @@
 #include "ns3/openflow-interface.h"
 #include "ns3/openflow-switch-net-device.h"
 
+namespace ns3 {
+
+namespace ofi {
+
 // Controlador con algoritmo aleatorio
 class RandomizeController : public Controller {
   public:
@@ -69,5 +73,6 @@ class IpRandomController : public Controller
     	typedef std::map<Mac48Address, LearnedState> LearnState_t;  // Relación MAC/Puerto
     	LearnState_t m_learnState;            // Datos aprendidos
 };
-
+}
+}
 #endif

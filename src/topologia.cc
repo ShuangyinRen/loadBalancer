@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <ns3/applications-module.h>
+#include <ns3/random-variable.h>
 #include <ns3/ipv4-global-routing-helper.h>
 #include <ns3/onoff-application.h>
 #include <ns3/gnuplot.h>
@@ -15,6 +16,7 @@
 #include <ns3/applications-module.h>
 #include <ns3/openflow-module.h>
 #include <ns3/log.h>
+#include "ns3/point-to-point-module.h"
 
 #include "loadbalancer.h"
 #include "controller.h"
@@ -100,7 +102,6 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
 	NetDeviceContainer clientDevices;
 	NetDeviceContainer serverDevices;
 	NetDeviceContainer switchDevices;
-	NetDeviceContainer link;
 	
 	// --- Servidores
 	for (int i = 0; i < server_number; i++)
@@ -114,7 +115,7 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
     switchDevices.Add(link.Get(1));		// Añade el device del switch al container de devices del switch
   }
   
-  // --- Clientes
+  // --- Clientess
   for (int i = 0; i < client_number; i++)
   {
     // Primero se crea un NodeContainer provisional con el cliente i y el NodeContainer del switch
@@ -136,11 +137,11 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
   switch (lb_type)
   {
     // Modo aleatorio
-    case RANDOM:
+    case OFLB_RANDOM:
     {
       NS_LOG_INFO("RANDOM (Usando balanceo de carga aleatorio)");
       // Ahora si creamos el controlador de este tipo
-      controller = CreateObject<ns3::ofi::RandomizeController>();
+      controller = CreateObject<ns3::ofi::RandomizeController>(server_number);
       // Instala switch:
       //    - Añade el dispositivo swtch al nodo switchNode
       //    - Añade los devices switchDevices como puertos del switch
@@ -149,11 +150,11 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
       break;
     }
     // Modo Round Robin
-    case ROUND_ROBIN:
+    case OFLB_ROUND_ROBIN:
     {
       NS_LOG_INFO("ROUND_ROBIN (Usando balanceo de carga Round Robin)");
       // Ahora si creamos el controlador de este tipo
-      controller = CreateObject<ns3::ofi::RoundRobinController>();
+      controller = CreateObject<ns3::ofi::RoundRobinController>(server_number);
       // Instala switch:
       //    - Añade el dispositivo swtch al nodo switchNode
       //    - Añade los devices switchDevices como puertos del switch
@@ -165,7 +166,7 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
     {
       NS_LOG_INFO("IP_RANDOM (Usando balanceo de carga basado en IP par o impar)");
       // Ahora si creamos el controlador de este tipo
-      controller = CreateObject<ns3::ofi::IpRandomController>();
+      controller = CreateObject<ns3::ofi::IpRandomController>(server_number);
       // Instala switch:
       //    - Añade el dispositivo swtch al nodo switchNode
       //    - Añade los devices switchDevices como puertos del switch
@@ -223,11 +224,20 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
 	NS_LOG_INFO ("Creando aplicación para los clientes...");
 
 	// Aplicación on/off
+	double ton = 3.0;
+	double toff = 1.2;
 	OnOffHelper onoff("ns3::UdpSocketFactory", Address(InetSocketAddress(Ipv4Address("172.16.0.1"), port)));
 	onoff.SetConstantRate(DataRate("500kbps"));
-    
+
+  	std::ostringstream str_ton;
+  	std::ostringstream str_toff;
+	str_ton << "ns3::ExponentialRandomVariable[Mean=" << ton <<"]";
+  	str_toff << "ns3::ExponentialRandomVariable[Mean=" << toff <<"]";
+	onoff.SetAttribute("OnTime",StringValue(str_ton.str()));
+	onoff.SetAttribute("OffTime",StringValue(str_toff.str()));  
+  
   // Tiempo de simulacion
-  int stop = 30;
+  int stop = 4;
 
   // Instala la aplicación en todos los clientes
   appClients = onoff.Install(clients);
@@ -241,17 +251,18 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
   PacketSinkHelper sink("ns3::UdpSocketFactory",Address(InetSocketAddress(Ipv4Address::GetAny(), port)));
   
   // Instala el sumidero en los servidores	
-  appServers = sink.Install(servers);
-  appServers.Start(Seconds(1.0));
-  appServers.Stop(Seconds(stop));
-  	
+  
+    appServers = sink.Install(servers);
+    appServers.Start(Seconds(1.0));
+    appServers.Stop(Seconds(stop));
+  
   // Suscribimos cada server a un observador.
   for (int i = 0; i < server_number; i++)
   {
-  	serverDevices.Get(i)->TraceConnectWithoutContext ("PhyTxDrop", MakeCallback(&Observador::Pqt_Perdido, &(observadores[i])));
+  	serverDevices.Get(i)->TraceConnectWithoutContext ("PhyRxDrop", MakeCallback(&Observador::Pqt_Perdido, &(observadores[i])));
   	serverDevices.Get(i)->TraceConnectWithoutContext ("MacTx", MakeCallback(&Observador::Pqt_Enviado, &(observadores[i])));
   	serverDevices.Get(i)->TraceConnectWithoutContext ("MacRx", MakeCallback(&Observador::Pqt_Recibido, &(observadores[i])));
-  }
+  } 
   
   NS_LOG_INFO ("Lanzando simulación");
   Simulator::Run();
@@ -264,104 +275,139 @@ int main (int argc, char *argv[])
 	GlobalValue::Bind("ChecksumEnabled", BooleanValue(true));
 	Time::SetResolution(Time::US); 
 
-	int client_number = 12;                        // Número de clientes
+	int client_number = OF_DEFAULT_CLIENT_NUMBER;  // Número de clientes
 	int server_number = OF_DEFAULT_SERVER_NUMBER;  // Número de servidores
 	oflb_type lb_type = OFLB_RANDOM;               // Tipo de balanceo
-	DataRate dataRate = DataRate("100mbps");		   // Tasa bits  
-	Time delay = Time("6.56us");         		       // Retardo de propagación en el bus (delay)
+	DataRate dataRate = DataRate("0Mbps");		   // Tasa bits  
+	Time delay = Time("0us");         		       // Retardo de propagación en el bus (delay)
 
   char server_number_str[1024];       // Para convertir entrada
   char lb_type_str[1024];             // Para convertir entrada
   
+  memset(server_number_str,0,1024);
+  memset(lb_type_str,0,1024);  
+  
   CommandLine cmd;
   cmd.AddValue ("number", "Número de servidores", server_number_str);				// Con callback para parsear
-  cmd.AddValue ("type", "Algoritmo de balanceo [random o round-robin]", lb_type_str);	// Con callback para convertir
+  cmd.AddValue ("type", "Algoritmo de balanceo [random,round-robin o ip-random]", lb_type_str);	// Con callback para convertir
  	cmd.AddValue("dataRate","Tasa de bit",dataRate);												// Sin callback porque se puede pasar string a DataRateValue()
  	cmd.AddValue("delay","Retardo de propagación en el bus",delay);									// Sin callback porque se puede pasar string a TimeValue()
 	cmd.Parse(argc,argv);
-
-	server_number = atoi(server_number_str);
-	lb_type = ParseType(lb_type_str);
-
+	
+	// Comprobamos valores por línea de comandos, si no hay se usan por defecto.
+	// Si las cadenas de server_number y lb_type estan vacías no se hace nada,
+	// puesto que los valores enteros, ya estaban establecidos por defecto.
+	// En caso contrario, se sobreescriben los valores con los introducios por cmd.
+	if(strcmp(server_number_str,"") != 0) {
+		server_number = atoi(server_number_str);  
+	}
+	if(strcmp(lb_type_str,"") != 0) {
+    lb_type = ParseType(lb_type_str);
+	}
+	
+	// Con dataRate y delay se establecen cero al inicio.
+	// Si tras leer los valores de cmd siguen siendo cero, se inicializan a unos
+	// valores por defecto.
+	if(dataRate.GetBitRate() == 0) {
+    dataRate = DataRate("100Mbps");
+	}
+	if(delay.GetMicroSeconds() == 0) {
+    delay = Time("6.56us");
+	}
+	
   // Gráficas
   Gnuplot plot1;
-  plot1.SetTitle ("Grafica1");
-  plot1.SetLegend("Iteración","Paquetes recibidos");
+  plot1.SetTitle ("");
+  plot1.SetLegend("Número de clientes/servidor","Paquetes recibidos");
   Gnuplot2dDataset datos1("paquetes_recibidos");
 	datos1.SetStyle (Gnuplot2dDataset::LINES_POINTS);
     
-  Gnuplot plot2;
-  plot2.SetTitle ("Grafica2");
-  plot2.SetLegend("Iteración","Tiempo entre paquetes (ms)");
+  //Gnuplot plot2;
+  //plot2.SetTitle ("Grafica2");
+  //plot2.SetLegend("Número de clientes/servidor","Tiempo entre paquetes (ms)");
   Gnuplot2dDataset datos2("tiempo_entre_paquetes");
   datos2.SetStyle (Gnuplot2dDataset::LINES_POINTS);
-
-  Gnuplot plot3;
-  plot3.SetTitle ("Grafica3");
-  plot3.SetLegend("Iteración","Paquetes perdidos");
-  Gnuplot2dDataset datos3("paquetes_perdidos");
-  datos3.SetStyle (Gnuplot2dDataset::LINES_POINTS);
     
-  int init_clients = client_number;
-  int init_servers = server_number;   
-  Gnuplot2dDataset datos_info;     
-         
-  for(int j=0; j!=5; j++) 
-  {    
-  // Por cada simulacion aumentamos clientes y servidores
-    client_number = init_clients+(15*j);
-    server_number = init_servers+(2*j);
+  int stepClient = 50;		// Incremento de clientes en cada iteracción
+  
+  int iteraciones = 10;		// Número de iteracciones
+  
+  int clients = client_number; 			// Número inicial de servidores y clientes desde el que se empieza a sumar
 
-    Average<double> avg_total_received;
-    Average<double> avg_total_lost;
-    Average<double> avg_time_delay;
+  int relation = 0; 		// Relación clientes/servidores		
+
+    NS_LOG_INFO (".-.-.-.-.-.-.-.-.-CAAAAAMBIIIOOOOO.-.-.-.-.-.-.");
+
+    for(int j=0; j<iteraciones; j++) 
+    {    
+    // Por cada simulacion aumentamos clientes y servidores
+    /*  if(j<(iteraciones/2)) {
+        client_number = init_clients+(15*j);
+      }
+      else {
+        server_number = init_servers+(2*j);
+      } */
+      
+      	// Aumenta clientes. Servidores constantes
+        clients=client_number+(stepClient*j);
+
+      
+      relation = clients/server_number; 		// Calcula la relación cliente/servidor
+
+      NS_LOG_INFO ("Numero clientes : " << clients);
+      NS_LOG_INFO ("Numero servidores : " << server_number);
+      NS_LOG_INFO ("Relación clientes/servidor : " << relation);
+          
+      Average<double> avg_total_received;
+      Average<double> avg_total_lost;
+      Average<double> avg_time_delay;
+          
+      /*std::ostringstream s1;
+      s1 << "Servers : " << server_number << " Clients : " << client_number;
+      datos_info = Gnuplot2dDataset(s1.str());
+      datos_info.SetStyle(Gnuplot2dDataset::LINES_POINTS);
+      datos_info2 = Gnuplot2dDataset(s1.str());
+      datos_info2.SetStyle(Gnuplot2dDataset::LINES_POINTS);
+      datos_info3 = Gnuplot2dDataset(s1.str());
+      datos_info3.SetStyle(Gnuplot2dDataset::LINES_POINTS);*/
         
-    std::ostringstream s1;
-    s1 << "Servers : " << server_number << " Clients : " << client_number;
-    datos_info = Gnuplot2dDataset(s1.str());
-    datos_info.SetStyle(Gnuplot2dDataset::LINES_POINTS);
-      
-    // Creamos observadores
-    Observador observadores[server_number];
-      	
-    simulacion(client_number, server_number, dataRate, delay, lb_type, observadores);
+      // Creamos observadores
+      Observador observadores[server_number];
         	
-    for(int i=0;i < server_number;i++) 
-    {
-	   // Para calcular porcentajes
-      avg_total_received.Update(observadores[i].TotalRecibidos());
+      simulacion(clients, server_number, dataRate, delay, lb_type, observadores);
+          	
+      for(int i=0;i < server_number;i++) 
+      {
+	    // Para calcular porcentajes
+        avg_total_received.Update(observadores[i].TotalRecibidos());
 	    avg_time_delay.Update(observadores[i].Get_DelayTime());
-     	avg_total_lost.Update(observadores[i].TotalPerdidos());      
+       	avg_total_lost.Update(observadores[i].TotalPerdidos());      
+      }
+        
+      /*datos_info.Add(j,avg_total_received.Mean());
+      datos_info2.Add(j,avg_time_delay.Mean());
+      datos_info3.Add(j,avg_total_lost.Mean());*/
+        datos1.Add(relation,avg_total_received.Mean());  
+        datos2.Add(relation,avg_time_delay.Mean());
+
+	    /*plot1.AddDataset(datos_info);
+      plot2.AddDataset(datos_info2);
+      plot3.AddDataset(datos_info3);*/
     }
+       
+    // Asigna valores a las gráficas
+    plot1.AddDataset(datos1);
+    plot1.AddDataset(datos2);
+     
+    std::ofstream fichero1 ("proyectopsr-gf1.plt");
+    plot1.GenerateOutput (fichero1);
+    fichero1 << "pause -1" << std::endl;
+    fichero1.close();
       
-    datos_info.Add(j,avg_total_received.Mean());
-    datos1.Add(j,avg_total_received.Mean());  
-    datos2.Add(j,avg_time_delay.Mean());
-    datos3.Add(j,avg_total_lost.Mean());
-      
-	  plot1.AddDataset(datos_info);
-    //plot2.AddDataset (datos2);
-  }
-       
-  // Asigna valores a las gráficas
-  plot1.AddDataset (datos1);
-  plot2.AddDataset (datos2);
-  plot3.AddDataset (datos3);
-   
-  std::ofstream fichero1 ("proyectopsr-gf1.plt");
-  plot1.GenerateOutput (fichero1);
-  fichero1 << "pause -1" << std::endl;
-  fichero1.close();
-    
-  std::ofstream fichero2("proyectopsr-gf2.plt");
-  plot2.GenerateOutput (fichero2);
-  fichero2 << "pause -1" << std::endl;
-  fichero2.close();
-       
-  std::ofstream fichero3("proyectopsr-gf3.plt");
-  plot3.GenerateOutput (fichero3);
-  fichero3 << "pause -1" << std::endl;
-  fichero3.close();   
-       
+    std::ofstream fichero2("proyectopsr-gf2.plt");
+    plot2.GenerateOutput (fichero2);
+    fichero2 << "pause -1" << std::endl;
+    fichero2.close();
+
   return 0;
 }
