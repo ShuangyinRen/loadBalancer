@@ -77,3 +77,30 @@ Debemos obtener el atributo OpenFlow marcado como "enabled":
 Por último, completamos la instalación con:
 
     ./waf build
+
+## Archivos y ejecución:
+# Ficheros
+controller.h => Librería con las definiciones necesarias en los Controllers
+iprandom_controller.cc  => Controller IP random
+loadbalancer.h => Librería con las definiciones necesarias en el escenario
+Observador.cc => Implementación del observador para obtener datos
+Observador.h  => Librería con las definiciones necesarias en el observador
+random_controller.cc => Controller random
+roundrobin_controller.cc => Controller round-robin
+topologia_ServGraf.cc => Escenario y simulación pintando gráficas en función del tipo de algoritmo introducido
+topologia_TipoGraf.cc => Escenario y simulación pintando gráficas comparando los tres tipos
+
+NOTA: Para ejecutar se deben incluir estos ficheros en la carpeta ns-3.20/scratch/ en un directorio que se llame con el nombre que se desee ejecutar, por ejemplo, "loadBalancer". En este directorio sólo debe aparecer uno de los ficheros topologia_xxxx.cc,según el tipo de simulación que se desee realizar.
+
+#Uso
+NS_LOG="Topologia" ./waf --run "loadBalancer --number=2 --type=random --dataRate=100Mbps --delay=5us"
+        |                          |            |            |                  |              |-> Retraso del canal
+        |                          |            |            |                  |-> Tasa del canal
+        |                          |            |            |-> Tipo de balanceo (random, round-robin ó ip-random)
+        |                          |            |-> Número inicial de servidores
+        |                          |-> Nombre del directorio en ns-3.20/scratch/
+        |-> Activación de las trazas:
+                  |-> Topologia para el escenario
+                  |-> random para el random Controller
+                  |-> roundrobin para el round-robin Controller
+                  |-> ip-random para el IP random Controller
