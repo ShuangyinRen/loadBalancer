@@ -79,7 +79,7 @@ Por último, completamos la instalación con:
     ./waf build
 
 ## Archivos y ejecución:
-# Ficheros
+### Ficheros
 controller.h => Librería con las definiciones necesarias en los Controllers
 iprandom_controller.cc  => Controller IP random
 loadbalancer.h => Librería con las definiciones necesarias en el escenario
@@ -92,7 +92,7 @@ topologia_TipoGraf.cc => Escenario y simulación pintando gráficas comparando l
 
 NOTA: Para ejecutar se deben incluir estos ficheros en la carpeta ns-3.20/scratch/ en un directorio que se llame con el nombre que se desee ejecutar, por ejemplo, "loadBalancer". En este directorio sólo debe aparecer uno de los ficheros topologia_xxxx.cc,según el tipo de simulación que se desee realizar.
 
-#Uso
+### Uso
 NS_LOG="Topologia" ./waf --run "loadBalancer --number=2 --type=random --dataRate=100Mbps --delay=5us"
         |                          |            |            |                  |              |-> Retraso del canal
         |                          |            |            |                  |-> Tasa del canal
