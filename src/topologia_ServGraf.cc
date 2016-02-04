@@ -63,7 +63,7 @@ oflb_type ParseType(char *lb_type_str)
   }
   else if (strcmp(lb_type_str,"ip-random") == 0) 
   {
-   	return IP_RANDOM;
+   	return OFLB_IP_RANDOM;
   }
   else 
   {
@@ -158,7 +158,7 @@ void simulacion(int client_number, int server_number, DataRate dataRate, Time de
       swtch.Install(switchNode, switchDevices, controller);
       break;
     }
-    case IP_RANDOM:
+    case OFLB_IP_RANDOM:
     {
       NS_LOG_INFO("IP_RANDOM (Usando balanceo de carga basado en IP par o impar)");
       // Ahora si creamos el controlador de este tipo
@@ -313,23 +313,23 @@ int main (int argc, char *argv[])
 
 
 	// Parámetros elegidos:
-	NS_LOG_INFO ("Numero clientes : " << client_number);
-	NS_LOG_INFO ("Numero servidores : " << server_number);
+	NS_LOG_INFO ("				Numero clientes : " << client_number);
+	NS_LOG_INFO ("				Numero servidores : " << server_number);
 	switch (lb_type)
  	{
     	case OFLB_RANDOM:
     	{
-      		NS_LOG_INFO("Algoritmo: RANDOM");
+      		NS_LOG_INFO("				Algoritmo: RANDOM");
       		break;
     	}
     	case OFLB_ROUND_ROBIN:
     	{
-      		NS_LOG_INFO("Algoritmo: ROUND_ROBIN");
+      		NS_LOG_INFO("				Algoritmo: ROUND_ROBIN");
       		break;
     	}
-    	case IP_RANDOM:
+    	case OFLB_IP_RANDOM:
     	{
-      		NS_LOG_INFO("Algoritmo: IP_RANDOM");
+      		NS_LOG_INFO("				Algoritmo: IP_RANDOM");
       		break;
     	}
     	default: 
@@ -338,88 +338,90 @@ int main (int argc, char *argv[])
     	}
     }
 	
-  // Gráficas
+	 // Gráficas
   Gnuplot plot1;
-  plot1.SetTitle ("");
+  plot1.SetTitle ("Gráfica 1: Paquetes recibidos aumentando el nº clientes en IP-random");
   plot1.SetLegend("Número de clientes/servidor","Paquetes recibidos");
-  Gnuplot2dDataset datos1("paquetes_recibidos");
-  datos1.SetStyle (Gnuplot2dDataset::LINES_POINTS);
-    
-  Gnuplot plot2;
-  plot2.SetTitle ("Grafica2");
-  plot2.SetLegend("Número de clientes/servidor","Tiempo entre paquetes (ms)");
-  Gnuplot2dDataset datos2("tiempo_entre_paquetes");
-  datos2.SetStyle (Gnuplot2dDataset::LINES_POINTS);
-    
-  int stepClient = 50;		// Incremento de clientes en cada iteracción
-  
-  int iteraciones = 10;		// Número de iteracciones
-  
-  int clients = client_number; 			// Número inicial de servidores y clientes desde el que se empieza a sumar
+  Gnuplot2dDataset datos11("Servidores: 2");
+  datos11.SetStyle (Gnuplot2dDataset::LINES_POINTS);
+  Gnuplot2dDataset datos12("Servidores: 4");
+  datos12.SetStyle (Gnuplot2dDataset::LINES_POINTS);
+  Gnuplot2dDataset datos13("Servidores: 6");
+  datos13.SetStyle (Gnuplot2dDataset::LINES_POINTS);
 
+  Gnuplot plot2;
+  plot2.SetTitle ("Gráfica 2: Tiempo entre paquetes aumentando el nº clientes en IP-random");
+  plot2.SetLegend("Número de clientes/servidor","Tiempo entre paquetes (ms)");
+  plot2.AppendExtra ("set xrange [0:+200]");
+  Gnuplot2dDataset datos21("Servidores: 2");
+  datos21.SetStyle (Gnuplot2dDataset::LINES_POINTS);
+  Gnuplot2dDataset datos22("Servidores: 4");
+  datos22.SetStyle (Gnuplot2dDataset::LINES_POINTS);
+  Gnuplot2dDataset datos23("Servidores: 6");
+  datos23.SetStyle (Gnuplot2dDataset::LINES_POINTS);
+
+
+  int stepClient = 50;		// Incremento de clientes en cada iteracción
+  int clients, servers; 	// Número inicial de servidores y clientes desde el que se empieza a sumar
   int relation = 0; 		// Relación clientes/servidores		
 
-    for(int j=0; j<iteraciones; j++) 
-    {    
-    // Por cada simulacion aumentamos clientes y servidores
-    /*  if(j<(iteraciones/2)) {
-        client_number = init_clients+(15*j);
-      }
-      else {
-        server_number = init_servers+(2*j);
-      } */
-      
-      	// Aumenta clientes. Servidores constantes
-        clients=client_number+(stepClient*j);
+  	for (int k=0; k < 3; k++)
+  	{
+  		servers = server_number + (2*k);	// Servidores aumentando
+  		clients = client_number;			// Valor inicial del número de clientes
 
-      
-      relation = clients/server_number; 		// Calcula la relación cliente/servidor
+	    while(relation<200)
+	    {    
+	      relation = clients/servers; 		// Calcula la relación cliente/servidor
 
-      NS_LOG_INFO ("Numero clientes : " << clients);
-      NS_LOG_INFO ("Numero servidores : " << server_number);
-      NS_LOG_INFO ("Relación clientes/servidor : " << relation);
-          
-      Average<double> avg_total_received;
-      Average<double> avg_total_lost;
-      Average<double> avg_time_delay;
-          
-      /*std::ostringstream s1;
-      s1 << "Servers : " << server_number << " Clients : " << client_number;
-      datos_info = Gnuplot2dDataset(s1.str());
-      datos_info.SetStyle(Gnuplot2dDataset::LINES_POINTS);
-      datos_info2 = Gnuplot2dDataset(s1.str());
-      datos_info2.SetStyle(Gnuplot2dDataset::LINES_POINTS);
-      datos_info3 = Gnuplot2dDataset(s1.str());
-      datos_info3.SetStyle(Gnuplot2dDataset::LINES_POINTS);*/
-        
-      // Creamos observadores
-      Observador observadores[server_number];
-        	
-      simulacion(clients, server_number, dataRate, delay, lb_type, observadores);
-          	
-      for(int i=0;i < server_number;i++) 
-      {
-	    // Para calcular porcentajes
-        avg_total_received.Update(observadores[i].TotalRecibidos());
-	    avg_time_delay.Update(observadores[i].Get_DelayTime());
-       	avg_total_lost.Update(observadores[i].TotalPerdidos());      
-      }
-        
-      /*datos_info.Add(j,avg_total_received.Mean());
-      datos_info2.Add(j,avg_time_delay.Mean());
-      datos_info3.Add(j,avg_total_lost.Mean());*/
-        datos1.Add(relation,avg_total_received.Mean());  
-        datos2.Add(relation,avg_time_delay.Mean());
-
-	    /*plot1.AddDataset(datos_info);
-      plot2.AddDataset(datos_info2);
-      plot3.AddDataset(datos_info3);*/
+	      NS_LOG_INFO ("Número clientes : " << clients);
+	      NS_LOG_INFO ("Número servidores : " << servers);
+	      NS_LOG_INFO ("Relación clientes/servidor : " << relation);
+	          
+	      Average<double> avg_total_received;
+	      Average<double> avg_total_lost;
+	      Average<double> avg_time_delay;
+	        
+	      // Creamos observadores
+	      Observador observadores[servers];
+	        	
+	      simulacion(clients, servers, dataRate, delay, lb_type, observadores);
+	          	
+	      for(int i=0;i < servers;i++) 
+	      {
+		    // Para calcular porcentajes
+	        avg_total_received.Update(observadores[i].TotalRecibidos());
+		    avg_time_delay.Update(observadores[i].Get_DelayTime());
+	       	avg_total_lost.Update(observadores[i].TotalPerdidos());      
+	      }
+	        if (k==0)
+	        {
+	        	datos11.Add(relation,avg_total_received.Mean());  
+	        	datos21.Add(relation,avg_time_delay.Mean());
+	        }
+	        else if (k==1)
+	        {
+	        	datos12.Add(relation,avg_total_received.Mean());  
+	        	datos22.Add(relation,avg_time_delay.Mean());
+	        }
+	        else if (k==2)
+	        {
+	        	datos13.Add(relation,avg_total_received.Mean());  
+	        	datos23.Add(relation,avg_time_delay.Mean());
+	        }
+	       	// Aumenta clientes. Servidores constantes
+	        clients = clients + stepClient;
+	    }
+	    relation=0;
     }
-       
     // Asigna valores a las gráficas
-    plot1.AddDataset(datos1);
-    plot2.AddDataset(datos2);
-     
+    plot1.AddDataset(datos11);
+    plot1.AddDataset(datos12);
+    plot1.AddDataset(datos13);
+    plot2.AddDataset(datos21);
+    plot2.AddDataset(datos22);
+    plot2.AddDataset(datos23);
+
     std::ofstream fichero1 ("proyectopsr-gf1.plt");
     plot1.GenerateOutput (fichero1);
     fichero1 << "pause -1" << std::endl;
