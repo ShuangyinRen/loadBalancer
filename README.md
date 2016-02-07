@@ -80,15 +80,16 @@ Por último, completamos la instalación con:
 
 ## Archivos y ejecución:
 #### Ficheros
-controller.h => Librería con las definiciones necesarias en los Controllers
-iprandom_controller.cc  => Controller IP random
-loadbalancer.h => Librería con las definiciones necesarias en el escenario
-Observador.cc => Implementación del observador para obtener datos
-Observador.h  => Librería con las definiciones necesarias en el observador
-random_controller.cc => Controller random
-roundrobin_controller.cc => Controller round-robin
-topologia_ServGraf.cc => Escenario y simulación pintando gráficas en función del tipo de algoritmo introducido
-topologia_TipoGraf.cc => Escenario y simulación pintando gráficas comparando los tres tipos
+
+    controller.h => Librería con las definiciones necesarias en los Controllers
+    iprandom_controller.cc  => Controller IP random
+    loadbalancer.h => Librería con las definiciones necesarias en el escenario
+    Observador.cc => Implementación del observador para obtener datos
+    Observador.h  => Librería con las definiciones necesarias en el observador
+    random_controller.cc => Controller random
+    roundrobin_controller.cc => Controller round-robin
+    topologia_ServGraf.cc => Escenario y simulación pintando gráficas en función del tipo de algoritmo introducido
+    topologia_TipoGraf.cc => Escenario y simulación pintando gráficas comparando los tres tipos
 
 NOTA: Para ejecutar se deben incluir estos ficheros en la carpeta ns-3.20/scratch/ en un directorio que se llame con el nombre que se desee ejecutar, por ejemplo, "loadBalancer". En este directorio sólo debe aparecer uno de los ficheros topologia_xxxx.cc,según el tipo de simulación que se desee realizar.
 
