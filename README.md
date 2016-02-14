@@ -9,14 +9,14 @@ Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso d
 
 ## Contenido
 - [Objetivo](#objetivo)
-- [Introducción](#introduccion)
-- [Topología](#topologia)
+- [Introduccion](#introduccion)
+- [Topologia](#topologia)
 - [Modos de balanceo](#modos-de-balanceo)
  - [Random](#random)
  - [Round Robin](#round-robin)
  - [IP Random](#ip-random)
-- [Instalación de OpenFlow en ns3-20](#instalacion-de-openflow-en-ns3-20)
-- [Archivos y ejecución](#archivos-y-ejecucion)
+- [Instalacion de OpenFlow en ns3-20](#instalacion-de-openflow-en-ns3-20)
+- [Archivos y ejecucion](#archivos-y-ejecucion)
  - [Ficheros](#ficheros)
  - [Uso](#uso)
 
@@ -53,7 +53,7 @@ En este modo las peticiones se balancean entre los diferentes servidores en dos 
 Tras un número suficientemente grande de iteracciones la carga debe ser uniforme en todos los servidores, puesto que estadísticamente todos los servidores tienen la misma probabilidad de recibir una petición debido a que el tráfico real tendrá el mismo número de IPs pares que impares, y dentro de cada grupo hay la misma probabilidad de elegir un servidor u otro dentro de la lista de servidores pares o impares.
 
 ![IR](http://imgur.com/gtE8xIR.png)
-## Instalación de OpenFlow en ns3-20
+## Instalacion de OpenFlow en ns3-20
 Debemos instalar los siguientes paquetes:
 
     sudo apt-get install libboost-all-dev
@@ -82,7 +82,7 @@ Por último, completamos la instalación con:
 
     ./waf build
 
-## Archivos y ejecución
+## Archivos y ejecucion
 #### Ficheros
 
     controller.h => Librería con las definiciones necesarias en los Controllers
