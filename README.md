@@ -41,14 +41,17 @@ La comunicación, mediante OpenFlow, entre el switch y el Controller se realiza 
 #### Random
 En este modo las peticiones se balancean entre los diferentes servidores de manera aleatoria. Cuando llega una petición al switch este determina a qué servidor la envía de manera totalmente aleatoria, para ello se genera un número aleatorio uniforme entre 0 y el número de servidores.
 Tras un número suficientemente grande de iteracciones la carga debe ser uniforme en todos los servidores, puesto que estadísticamente todos los servidores tienen la misma probabilidad de recibir una petición.
+
 ![R](http://imgur.com/V6AG0V0.png)
 #### Round Robin
 En este modo las peticiones se balancean entre los diferentes servidores de mediant el protocolo Round Robin. Cuando llega una petición al switch este determina a qué servidor la envía de manera secuencial, para ello almacena en una lista el último servidor al que envió la petición para en el caso actual mandarla al siguiente, cuando llega al final de la lista vuelve a enviarla al primero.
 La carga debe ser uniforme en todos los servidores sin tener que esperar a que se realice un número grande de simulaciones, puesto que no depende de ningún factor aleatorio, simplemente asigna de manera circular las peticiones.
+
 ![RR](http://imgur.com/XDLHlI9.png)
 #### IP Random
 En este modo las peticiones se balancean entre los diferentes servidores en dos fases. Primero teniendo en cuenta la IP origen se determina si ésta es par o impar, en caso de que la IP sea par, la petición será atendida solo por servidores pares. En caso de ser impar se atiende por servidores impares. Una vez determinado esto se genera aleatoriamente el servidor que la atiende, es decir, dentro de los pares o los impares se determina cuál es el que atiende la petición.
 Tras un número suficientemente grande de iteracciones la carga debe ser uniforme en todos los servidores, puesto que estadísticamente todos los servidores tienen la misma probabilidad de recibir una petición debido a que el tráfico real tendrá el mismo número de IPs pares que impares, y dentro de cada grupo hay la misma probabilidad de elegir un servidor u otro dentro de la lista de servidores pares o impares.
+
 ![IR](http://imgur.com/gtE8xIR.png)
 ## Instalación de OpenFlow en ns3-20
 Debemos instalar los siguientes paquetes:
