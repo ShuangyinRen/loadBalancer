@@ -37,21 +37,19 @@ La comunicación, mediante OpenFlow, entre el switch y el Controller se realiza 
   Una vez que el Controller tiene información sobre el paquete que ha llegado al siwtch, ejecuta su algoritmo para formar el paquete de respuesta. Tras ejecutar el algoritmo y obtener un resultado satisfactorio, el Controller envía un mensaje OpenFlow de respuesta al switch en el que le dice qué acción debe llevar a cabo con el paquete de datos que ha recibido, principalmente este mensaje OpenFlow contiene dos parámetros: la acción (siempre reenviar) y el puerto del switch por el que reenviar, este puerto es el que va variando en función del algoritmo implementado, de esta manera se produce el balanceo entre los servidores.
 
 ## Modos de balanceo
-
 ![Flujo](http://imgur.com/QuE5eiW.png)
-
 #### Random
 En este modo las peticiones se balancean entre los diferentes servidores de manera aleatoria. Cuando llega una petición al switch este determina a qué servidor la envía de manera totalmente aleatoria, para ello se genera un número aleatorio uniforme entre 0 y el número de servidores.
 Tras un número suficientemente grande de iteracciones la carga debe ser uniforme en todos los servidores, puesto que estadísticamente todos los servidores tienen la misma probabilidad de recibir una petición.
-![Mensajes](http://imgur.com/v3iK5V8.png)
+![R](http://imgur.com/v3iK5V8.png)
 #### Round Robin
 En este modo las peticiones se balancean entre los diferentes servidores de mediant el protocolo Round Robin. Cuando llega una petición al switch este determina a qué servidor la envía de manera secuencial, para ello almacena en una lista el último servidor al que envió la petición para en el caso actual mandarla al siguiente, cuando llega al final de la lista vuelve a enviarla al primero.
 La carga debe ser uniforme en todos los servidores sin tener que esperar a que se realice un número grande de simulaciones, puesto que no depende de ningún factor aleatorio, simplemente asigna de manera circular las peticiones.
-![Mensajes](http://imgur.com/v3iK5V8.png)
+![RR](http://imgur.com/K7lbrdA.png)
 #### IP Random
 En este modo las peticiones se balancean entre los diferentes servidores en dos fases. Primero teniendo en cuenta la IP origen se determina si ésta es par o impar, en caso de que la IP sea par, la petición será atendida solo por servidores pares. En caso de ser impar se atiende por servidores impares. Una vez determinado esto se genera aleatoriamente el servidor que la atiende, es decir, dentro de los pares o los impares se determina cuál es el que atiende la petición.
 Tras un número suficientemente grande de iteracciones la carga debe ser uniforme en todos los servidores, puesto que estadísticamente todos los servidores tienen la misma probabilidad de recibir una petición debido a que el tráfico real tendrá el mismo número de IPs pares que impares, y dentro de cada grupo hay la misma probabilidad de elegir un servidor u otro dentro de la lista de servidores pares o impares.
-![Mensajes](http://imgur.com/Ya2Vx4y.png)
+![IR](http://imgur.com/Ya2Vx4y.png)
 ## Instalación de OpenFlow en ns3-20
 Debemos instalar los siguientes paquetes:
 
