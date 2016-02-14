@@ -4,7 +4,7 @@
 [![Twitter](https://img.shields.io/badge/LinkedIn-Carlos-blue.svg)](https://es.linkedin.com/in/carlosrodriguezhernandez)
 [![social](https://img.shields.io/badge/Twitter-carrodher-blue.svg)](https://twitter.com/carrodher)
 
-# proyectoPSR
+# Load Balancer
 Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso del Grado en Ingeniería de las Tecnologías de Telecomunicación de la Universidad de Sevilla. 
 
 ## Contenido
