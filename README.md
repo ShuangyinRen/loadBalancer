@@ -1,5 +1,6 @@
 ![Build Status](https://api.travis-ci.org/stamparm/maltrail.svg?branch=master)
-[![C++ 2.6|2.7](https://img.shields.io/badge/C++-14-yellow.svg)](http://www.cplusplus.com/) 
+[![C++](https://img.shields.io/badge/C++-14-yellow.svg)](http://www.cplusplus.com/)
+[![ns3](https://img.shields.io/badge/ns3-20-orange.svg)](https://www.nsnam.org/ns-3-20/) 
 [![License](https://img.shields.io/badge/license-CreativeCommons | NC-red.svg)](http://es.creativecommons.org/blog/licencias/) 
 [![Twitter](https://img.shields.io/badge/LinkedIn-Carlos-blue.svg)](https://es.linkedin.com/in/carlosrodriguezhernandez)
 [![social](https://img.shields.io/badge/Twitter-carrodher-blue.svg)](https://twitter.com/carrodher)
