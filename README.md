@@ -8,17 +8,17 @@
 Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso del Grado en Ingeniería de las Tecnologías de Telecomunicación de la Universidad de Sevilla. 
 
 ## Contenido
-- [Objetivo](#Objetivo)
-- [Introducción](#Introducción)
-- [Topología](#Topología)
-- [Modos de balanceo](#Modos-de-balanceo)
- - [Random](#Random)
- - [Round Robin](#Round-Robin)
- - [IP Random](#IP-Random)
-- [Instalación de OpenFlow en ns3-20](#Instalación-de-OpenFlow-en-ns3-20)
-- [Archivos y ejecución](#Archivos-y-ejecución)
- - [Ficheros](#Ficheros)
- - [Uso](#Uso)
+- [Objetivo](#objetivo)
+- [Introducción](#introduccion)
+- [Topología](#topologia)
+- [Modos de balanceo](#modos-de-balanceo)
+ - [Random](#random)
+ - [Round Robin](#round-robin)
+ - [IP Random](#ip-random)
+- [Instalación de OpenFlow en ns3-20](#instalacion-de-openflow-en-ns3-20)
+- [Archivos y ejecución](#archivos-y-ejecucion)
+ - [Ficheros](#ficheros)
+ - [Uso](#uso)
 
 ## Objetivo
 Se pretende desarrollar un Sistema balanceador de carga para servidores haciendo uso del simulador ns3-20, por tanto este proyecto ha sido desarrollado en C++. De esta manera se quieren estudiar diferentes algoritmos de balanceo de carga.
