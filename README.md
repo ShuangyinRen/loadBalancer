@@ -1,6 +1,6 @@
 [![C++](https://img.shields.io/badge/C++-14-yellow.svg)](http://www.cplusplus.com/)
 [![ns3](https://img.shields.io/badge/ns3-20-orange.svg)](https://www.nsnam.org/ns-3-20/) 
-[![License](https://img.shields.io/badge/license-CC|By+NC-green.svg)](http://es.creativecommons.org/blog/licencias/) 
+[![License](https://img.shields.io/badge/license-CC | By+NC-green.svg)](http://es.creativecommons.org/blog/licencias/) 
 [![Linkedin](https://img.shields.io/badge/LinkedIn-Carlos-blue.svg)](https://es.linkedin.com/in/carlosrodriguezhernandez)
 [![Twitter](https://img.shields.io/badge/Twitter-carrodher-blue.svg)](https://twitter.com/carrodher)
 
