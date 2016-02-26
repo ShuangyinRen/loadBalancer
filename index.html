@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Loadbalancer by carrodher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Loadbalancer</h1>
+      <h2 class="project-tagline">Switch balanceador de carga mediante OpenFlow simulado con ns3</h2>
+      <a href="https://github.com/carrodher/loadBalancer" class="btn">View on GitHub</a>
+      <a href="https://github.com/carrodher/loadBalancer/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/carrodher/loadBalancer/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><a href="http://www.cplusplus.com/"><img src="https://img.shields.io/badge/C++-14-yellow.svg" alt="C++"></a>
+<a href="https://www.nsnam.org/ns-3-20/"><img src="https://img.shields.io/badge/ns3-20-orange.svg" alt="ns3"></a> 
+<a href="http://es.creativecommons.org/blog/licencias/"><img src="https://img.shields.io/badge/license-CC%20%7C%20By+NC-green.svg" alt="License"></a> 
+<a href="https://es.linkedin.com/in/carlosrodriguezhernandez"><img src="https://img.shields.io/badge/LinkedIn-Carlos-blue.svg" alt="Linkedin"></a>
+<a href="https://twitter.com/carrodher"><img src="https://img.shields.io/badge/Twitter-carrodher-blue.svg" alt="Twitter"></a></p>
+
+<h1>
+<a id="load-balancer" class="anchor" href="#load-balancer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Load Balancer</h1>
+
+<p>Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso del Grado en Ingeniería de las Tecnologías de Telecomunicación de la Universidad de Sevilla. </p>
+
+<h2>
+<a id="contenido" class="anchor" href="#contenido" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contenido</h2>
+
+<ul>
+<li><a href="#objetivo">Objetivo</a></li>
+<li><a href="#introduccion">Introduccion</a></li>
+<li><a href="#topologia">Topologia</a></li>
+<li>
+<a href="#modos-de-balanceo">Modos de balanceo</a>
+
+<ul>
+<li><a href="#random">Random</a></li>
+<li><a href="#round-robin">Round Robin</a></li>
+<li><a href="#ip-random">IP Random</a></li>
+</ul>
+</li>
+<li><a href="#instalacion-de-openflow-en-ns3-20">Instalacion de OpenFlow en ns3-20</a></li>
+<li>
+<a href="#archivos-y-ejecucion">Archivos y ejecucion</a>
+
+<ul>
+<li><a href="#ficheros">Ficheros</a></li>
+<li><a href="#uso">Uso</a></li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="objetivo" class="anchor" href="#objetivo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Objetivo</h2>
+
+<p>Se pretende desarrollar un Sistema balanceador de carga para servidores haciendo uso del simulador ns3-20, por tanto este proyecto ha sido desarrollado en C++. De esta manera se quieren estudiar diferentes algoritmos de balanceo de carga.</p>
+
+<h2>
+<a id="introducción" class="anchor" href="#introducci%C3%B3n" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introducción</h2>
+
+<p>Para dotar al sistema de un Balanceador de Carga se ha decidido hacer uso del concepto de Redes Definidas por Software (SDN, por sus siglas en inglés); este tipo de redes se basan en la idea de separar el plano físico del plano de control, de esta manera se puede dotar de cierta inteligencia a la red. 
+En el plano físico destaca la presencia de equipos "tradicionales", principalmente Switches; estos equipos no tienen capacidad para tomar decisiones por sí mismos. Esta capacidad de decisión o inteligencia reside en la figura del Controller, un elemento centralizado desde el cual se puede actuar sobre todos los equipo distribuidos. Una vez introducido el concepto de SDN, hay que mencionar un elemento clave en todo este sistema como es el protocolo OpenFlow. Este protocolo rige el intercambio de mensajes entre los elementos de red y el Controller, para que de esta manera las órdenes y el intercambio de información entre todos los dispositivos se realice de manera adecuada y acorde al estándar.</p>
+
+<h2>
+<a id="topología" class="anchor" href="#topolog%C3%ADa" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Topología</h2>
+
+<p>En este proyecto se ha diseñado, mediante el simulador ns3-20, una red de equipos clientes que realizan peticiones a un conjunto de servidores. Estas peticiones pasan a través de un switch, el cual es el encargado de balancearlas hacia el servidor adecuado; para realizar esa función de balanceo se han usado diferentes algoritmos implementados en el Controller.
+<img src="http://imgur.com/D07cQ91.png" alt="Mensajes">
+La comunicación, mediante OpenFlow, entre el switch y el Controller se realiza cada vez que llega un paquete al switch, básicamente trabaja en dos fases:</p>
+
+<ul>
+<li>
+<strong>Primera fase: Información</strong>
+Cuando llega un paquete de datos al switch, éste manda un mensaje OpenFlow al Controller. Este mensaje contiene toda la información relativa al flujo de comunicación que ha llegado al switch, entre otros atributos cabe destacar: IP_src, IP_dst, port_src, port_dst, procolo, MAC_src, MAC_dst, etc</li>
+<li>
+<strong>Segunda fase: Respuesta</strong>
+Una vez que el Controller tiene información sobre el paquete que ha llegado al siwtch, ejecuta su algoritmo para formar el paquete de respuesta. Tras ejecutar el algoritmo y obtener un resultado satisfactorio, el Controller envía un mensaje OpenFlow de respuesta al switch en el que le dice qué acción debe llevar a cabo con el paquete de datos que ha recibido, principalmente este mensaje OpenFlow contiene dos parámetros: la acción (siempre reenviar) y el puerto del switch por el que reenviar, este puerto es el que va variando en función del algoritmo implementado, de esta manera se produce el balanceo entre los servidores.</li>
+</ul>
+
+<h2>
+<a id="modos-de-balanceo" class="anchor" href="#modos-de-balanceo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Modos de balanceo</h2>
+
+<p><img src="http://imgur.com/QuE5eiW.png" alt="Flujo"></p>
+
+<h4>
+<a id="random" class="anchor" href="#random" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Random</h4>
+
+<p>En este modo las peticiones se balancean entre los diferentes servidores de manera aleatoria. Cuando llega una petición al switch este determina a qué servidor la envía de manera totalmente aleatoria, para ello se genera un número aleatorio uniforme entre 0 y el número de servidores.
+Tras un número suficientemente grande de iteracciones la carga debe ser uniforme en todos los servidores, puesto que estadísticamente todos los servidores tienen la misma probabilidad de recibir una petición.</p>
+
+<p><img src="http://imgur.com/V6AG0V0.png" alt="R"></p>
+
+<h4>
+<a id="round-robin" class="anchor" href="#round-robin" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Round Robin</h4>
+
+<p>En este modo las peticiones se balancean entre los diferentes servidores de mediant el protocolo Round Robin. Cuando llega una petición al switch este determina a qué servidor la envía de manera secuencial, para ello almacena en una lista el último servidor al que envió la petición para en el caso actual mandarla al siguiente, cuando llega al final de la lista vuelve a enviarla al primero.
+La carga debe ser uniforme en todos los servidores sin tener que esperar a que se realice un número grande de simulaciones, puesto que no depende de ningún factor aleatorio, simplemente asigna de manera circular las peticiones.</p>
+
+<p><img src="http://imgur.com/XDLHlI9.png" alt="RR"></p>
+
+<h4>
+<a id="ip-random" class="anchor" href="#ip-random" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>IP Random</h4>
+
+<p>En este modo las peticiones se balancean entre los diferentes servidores en dos fases. Primero teniendo en cuenta la IP origen se determina si ésta es par o impar, en caso de que la IP sea par, la petición será atendida solo por servidores pares. En caso de ser impar se atiende por servidores impares. Una vez determinado esto se genera aleatoriamente el servidor que la atiende, es decir, dentro de los pares o los impares se determina cuál es el que atiende la petición.
+Tras un número suficientemente grande de iteracciones la carga debe ser uniforme en todos los servidores, puesto que estadísticamente todos los servidores tienen la misma probabilidad de recibir una petición debido a que el tráfico real tendrá el mismo número de IPs pares que impares, y dentro de cada grupo hay la misma probabilidad de elegir un servidor u otro dentro de la lista de servidores pares o impares.</p>
+
+<p><img src="http://imgur.com/gtE8xIR.png" alt="IR"></p>
+
+<h2>
+<a id="instalacion-de-openflow-en-ns3-20" class="anchor" href="#instalacion-de-openflow-en-ns3-20" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Instalacion de OpenFlow en ns3-20</h2>
+
+<p>Debemos instalar los siguientes paquetes:</p>
+
+<pre><code>sudo apt-get install libboost-all-dev
+sudo apt-get install mercurial
+</code></pre>
+
+<p>Posteriormente se descarga el código:</p>
+
+<pre><code>hg clone http://code.nsnam.org/openflow
+cd openflow
+</code></pre>
+
+<p>Configuramos e instalamos OpenFlow:</p>
+
+<pre><code>./waf configure
+./waf build
+</code></pre>
+
+<p>Linkamos nuestro ns3 con OpenFlow:</p>
+
+<pre><code>cd /ruta/hacia/nuestro/ns3/instalado/
+./waf configure --enable-examples --enable-tests --with-openflow=/ruta/hacia/nuestro/openflow/bajado/antes
+</code></pre>
+
+<p>Debemos obtener el atributo OpenFlow marcado como "enabled":</p>
+
+<pre><code>"NS-3 OpenFlow Integration     : enabled"
+</code></pre>
+
+<p>Por último, completamos la instalación con:</p>
+
+<pre><code>./waf build
+</code></pre>
+
+<h2>
+<a id="archivos-y-ejecucion" class="anchor" href="#archivos-y-ejecucion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Archivos y ejecucion</h2>
+
+<h4>
+<a id="ficheros" class="anchor" href="#ficheros" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ficheros</h4>
+
+<pre><code>controller.h =&gt; Librería con las definiciones necesarias en los Controllers
+iprandom_controller.cc  =&gt; Controller IP random
+loadbalancer.h =&gt; Librería con las definiciones necesarias en el escenario
+Observador.cc =&gt; Implementación del observador para obtener datos
+Observador.h  =&gt; Librería con las definiciones necesarias en el observador
+random_controller.cc =&gt; Controller random
+roundrobin_controller.cc =&gt; Controller round-robin
+topologia_ServGraf.cc =&gt; Escenario y simulación pintando gráficas en función del tipo de algoritmo introducido
+topologia_TipoGraf.cc =&gt; Escenario y simulación pintando gráficas comparando los tres tipos
+</code></pre>
+
+<p>NOTA: Para ejecutar se deben incluir estos ficheros en la carpeta ns-3.20/scratch/ en un directorio que se llame con el nombre que se desee ejecutar, por ejemplo, "loadBalancer". En este directorio sólo debe aparecer uno de los ficheros topologia_xxxx.cc,según el tipo de simulación que se desee realizar.</p>
+
+<h4>
+<a id="uso" class="anchor" href="#uso" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Uso</h4>
+
+<pre><code>NS_LOG="Topologia" ./waf --run "loadBalancer --number=2 --type=random --dataRate=100Mbps --delay=5us"
+          |                          |            |            |                |           |-&gt; Retraso del canal
+          |                          |            |            |                |-&gt; Tasa del canal
+          |                          |            |            |-&gt; Tipo de balanceo (random, round-robin ó ip-random)
+          |                          |            |-&gt; Número inicial de servidores
+          |                          |-&gt; Nombre del directorio en ns-3.20/scratch/
+          |-&gt; Activación de las trazas:
+                    |-&gt; Topologia para el escenario
+                    |-&gt; random para el random Controller
+                    |-&gt; roundrobin para el round-robin Controller
+                    |-&gt; ip-random para el IP random Controller
+</code></pre>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/carrodher/loadBalancer">Loadbalancer</a> is maintained by <a href="https://github.com/carrodher">carrodher</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
