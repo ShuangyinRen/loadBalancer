@@ -5,11 +5,11 @@
 #define OF_DEFAULT_CLIENT_NUMBER 100
 
 // Tipo de balanceo
-enum oflb_type 
+enum oflb_type
 {
 	OFLB_RANDOM,		// Aleatorio
 	OFLB_ROUND_ROBIN,	// Round Robin
-  	IP_RANDOM,         	// IP random
+	IP_RANDOM,         	// IP random
 	OFLB_ERROR
 };
 

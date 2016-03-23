@@ -16,9 +16,9 @@ NS_LOG_COMPONENT_DEFINE ("Observador");
 Observador::Observador()
 {
 	t_rx = 0.0;		// Tiempo de recepción
-	t_rx2 = 0.0;	
+	t_rx2 = 0.0;
 	flag = 0;
-  	//t_tx = 0.0;	// Tiempo de transmisión
+	//t_tx = 0.0;	// Tiempo de transmisión
 	t_delay = 0.0;	// Diferencia (retraso)
 	m_PaqTx = 0;	// Num. pkts transmitidos
 	m_PaqRx = 0;	// Num. pkts recibidos
@@ -26,34 +26,34 @@ Observador::Observador()
 
 void Observador::Pqt_Recibido(Ptr <const ns3::Packet> p)
 {
-  	// Guardamos el instante en el que se recibe un paquete. 
-	if (flag == 0) 
+	// Guardamos el instante en el que se recibe un paquete.
+	if (flag == 0)
 	{
 		t_rx = Simulator::Now().GetMilliSeconds();
 		flag = 1;
 	}
-	else 
+	else
 	{
 		t_rx2 = Simulator::Now().GetMilliSeconds();
 		t_delay = t_rx2-t_rx;
 		avg_time.Update(t_delay);
 		flag = 0;
 	}
-	
+
 	m_PaqRx++; // Aumentamos numero de paquetes recibidos.
 }
 
 void Observador::Pqt_Enviado(Ptr <const ns3::Packet> p)
 {
 	// Obtenemos instante en el que se transmite el paquete recibido.
- 	// t_tx = Simulator::Now().GetMilliSeconds();
- 	// t_delay = t_tx-t_rx;
+	// t_tx = Simulator::Now().GetMilliSeconds();
+	// t_delay = t_tx-t_rx;
 	// avg_time.Update(t_delay);
 
 	m_PaqTx++; // Aumentamos numero de paquetes transmitidos.
 }
 
-void Observador::Pqt_Perdido(Ptr<const Packet> paquete) 
+void Observador::Pqt_Perdido(Ptr<const Packet> paquete)
 {
 	m_perdidos++; // Aumentamos numero de paquetes perdidos
 }
@@ -99,7 +99,7 @@ void Observador::Reinicio()
 	m_PaqTx = 0;
 	m_PaqRx = 0;
 	m_perdidos = 0;
-  	//m_reintentos = 0;
-  	//acum_reintentos.Reset();
+	//m_reintentos = 0;
+	//acum_reintentos.Reset();
 	avg_time.Reset();
 }
