@@ -1,11 +1,11 @@
-[![C++](https://img.shields.io/badge/C++-14-yellow.svg)](http://www.cplusplus.com/)
-[![ns3](https://img.shields.io/badge/ns3-20-orange.svg)](https://www.nsnam.org/ns-3-20/) 
-[![License](https://img.shields.io/badge/license-CC | Non Commercial-green.svg)](http://es.creativecommons.org/blog/licencias/) 
+[![C++](https://img.shields.io/badge/C++-14-red.svg)](http://www.cplusplus.com/)
+[![ns3](https://img.shields.io/badge/ns3-20-orange.svg)](https://www.nsnam.org/ns-3-20/)
 [![Linkedin](https://img.shields.io/badge/LinkedIn-Carlos-blue.svg)](https://es.linkedin.com/in/carlosrodriguezhernandez)
 [![Twitter](https://img.shields.io/badge/Twitter-carrodher-blue.svg)](https://twitter.com/carrodher)
+[![License](https://img.shields.io/badge/License-BY/NC-yellow.svg)](https://github.com/carrodher/loadBalancer/blob/master/LICENSE)
 
 # Load Balancer
-Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso del Grado en Ingeniería de las Tecnologías de Telecomunicación de la Universidad de Sevilla. 
+Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso del Grado en Ingeniería de las Tecnologías de Telecomunicación de la Universidad de Sevilla.
 
 ## Contenido
 - [Objetivo](#objetivo)
@@ -24,7 +24,7 @@ Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso d
 Se pretende desarrollar un Sistema balanceador de carga para servidores haciendo uso del simulador ns3-20, por tanto este proyecto ha sido desarrollado en C++. De esta manera se quieren estudiar diferentes algoritmos de balanceo de carga.
 
 ## Introducción
-Para dotar al sistema de un Balanceador de Carga se ha decidido hacer uso del concepto de Redes Definidas por Software (SDN, por sus siglas en inglés); este tipo de redes se basan en la idea de separar el plano físico del plano de control, de esta manera se puede dotar de cierta inteligencia a la red. 
+Para dotar al sistema de un Balanceador de Carga se ha decidido hacer uso del concepto de Redes Definidas por Software (SDN, por sus siglas en inglés); este tipo de redes se basan en la idea de separar el plano físico del plano de control, de esta manera se puede dotar de cierta inteligencia a la red.
 En el plano físico destaca la presencia de equipos "tradicionales", principalmente Switches; estos equipos no tienen capacidad para tomar decisiones por sí mismos. Esta capacidad de decisión o inteligencia reside en la figura del Controller, un elemento centralizado desde el cual se puede actuar sobre todos los equipo distribuidos. Una vez introducido el concepto de SDN, hay que mencionar un elemento clave en todo este sistema como es el protocolo OpenFlow. Este protocolo rige el intercambio de mensajes entre los elementos de red y el Controller, para que de esta manera las órdenes y el intercambio de información entre todos los dispositivos se realice de manera adecuada y acorde al estándar.
 
 ## Topología
