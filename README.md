@@ -3,7 +3,7 @@
 [![ns3](https://img.shields.io/badge/ns3-20-orange.svg)](https://www.nsnam.org/ns-3-20/)
 [![Linkedin](https://img.shields.io/badge/LinkedIn-Carlos-blue.svg)](https://es.linkedin.com/in/carlosrodriguezhernandez)
 [![Twitter](https://img.shields.io/badge/Twitter-carrodher-blue.svg)](https://twitter.com/carrodher)
-[![License](https://img.shields.io/badge/License-BY/NC-yellow.svg)](https://github.com/carrodher/loadBalancer/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-BY/NC-yellow.svg)](https://github.com/carrodher/loadBalancer/blob/master/LICENSE.markdown)
 
 Proyecto de la asignatura "Planificación y Simulación de Redes" de 4º curso del Grado en Ingeniería de las Tecnologías de Telecomunicación de la Universidad de Sevilla.
 
